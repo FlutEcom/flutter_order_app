@@ -2,7 +2,7 @@
 
 Aplikacja mobilna Flutter, która pobiera listę produktów z API, a następnie wykorzystuje zewnętrzny model językowy (AI) do parsowania tekstu zamówienia, dopasowywania produktów i obliczania sum.
 
-## 🚀 Funkcjonalności
+##  Funkcjonalności
 
 * **Lista produktów**: Pobiera i wyświetla listę 50 produktów z `dummyjson.com`.
 * **Wyszukiwanie produktów**: (Bonus) Umożliwia filtrowanie listy produktów.
@@ -12,7 +12,7 @@ Aplikacja mobilna Flutter, która pobiera listę produktów z API, a następnie 
 * **Raport**: Prezentuje wynik w tabeli, wyraźnie oznaczając pozycje **dopasowane** i **niedopasowane**.
 * **Eksport**: (Bonus) Umożliwia eksport wyniku analizy do pliku JSON.
 
-## 🏛️ Architektura
+##  Architektura
 
 Aplikacja jest zbudowana zgodnie z zasadami **Clean Architecture** oraz wykorzystuje wzorzec **BLoC** do zarządzania stanem.
 
@@ -20,12 +20,12 @@ Aplikacja jest zbudowana zgodnie z zasadami **Clean Architecture** oraz wykorzys
 * **Data Layer**: Implementuje repozytoria z warstwy Domain. Odpowiada za pobieranie danych z zewnętrznych źródeł (API produktów, API modelu AI) oraz obsługę błędów.
 * **Presentation Layer**: Zawiera UI (Widgety) oraz logikę prezentacji (BLoC).
 
-## 🛠️ Konfiguracja i Uruchomienie
+##  Konfiguracja i Uruchomienie
 
 ### 1. Wymagania wstępne
 
 * Zainstalowane [Flutter SDK](https://flutter.dev/docs/get-started/install).
-* Klucz API do zewnętrznego modelu językowego (np. OpenAI, Google Gemini).
+* Aktywne konto i klucz API od [**OpenAI**](https://platform.openai.com/).
 
 ### 2. Konfiguracja klucza AI
 
@@ -44,20 +44,20 @@ Aplikacja wczytuje klucz API z pliku konfiguracyjnego, który **nie jest** śled
 
 5.  Plik `app_config.json` jest już dodany do `.gitignore` i nie zostanie przypadkowo wysłany do repozytorium.
 
-**Ważne**: Aplikacja nie uruchomi analizy AI, jeśli klucz będzie brakujący lub niepoprawny (zgodnie z wymaganiami).
+### 3. Wymagania dotyczące limitów OpenAI
 
-### 3. Implementacja AI
+**WAŻNE:** Domyślne limity darmowych kont ("Tier 1") w OpenAI są bardzo niskie i powodują błędy `HTTP 429 (Too Many Requests)`.
+
+Aby aplikacja działała poprawnie, **musisz posiadać konto na poziomie "Tier 2"** (lub wyższym). Zazwyczaj wymaga to dodania metody płatności do konta OpenAI, aby odblokować wyższe limity zapytań.
+
+### 4. Implementacja AI
 
 Logika wywołania API modelu AI znajduje się w pliku:
 `lib/features/order/data/datasources/order_ai_datasource.dart`
 
-W metodzie `parseOrderText` należy dostosować:
-* `_aiApiUrl`: Endpoint Twojego dostawcy AI.
-* `prompt`: Treść prompta systemowego wysyłanego do AI.
-* `data`: Body żądania (np. model, format odpowiedzi).
-* Logikę parsowania odpowiedzi: Domyślnie oczekiwana jest odpowiedź JSON w formacie `[{"name": "...", "quantity": 0}]`.
+Aplikacja jest skonfigurowana do użycia modelu `gpt-5-nano`. Jeśli chcesz użyć innego, zmodyfikuj pole `"model"` w ciele zapytania (`data`).
 
-### 4. Uruchomienie
+### 5. Uruchomienie
 
 1.  Pobierz zależności:
     ```bash
@@ -65,7 +65,7 @@ W metodzie `parseOrderText` należy dostosować:
     ```
 2.  Wygeneruj pliki (dla `json_serializable`):
     ```bash
-    flutter pub run build_runner build
+    dart run build_runner build
     ```
 3.  Uruchom aplikację:
     ```bash
