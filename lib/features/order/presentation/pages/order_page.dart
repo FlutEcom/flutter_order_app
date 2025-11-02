@@ -221,8 +221,7 @@ class _OrderViewState extends State<OrderView> {
             ),
           );
         }
-        // Domyślnie (OrderInitial)
-        return const Center(child: Text('Czekam na analizę...'));
+        return const SizedBox.shrink();
       },
     );
   }
