@@ -18,7 +18,15 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // --- Core ---
-  sl.registerSingleton(Dio());
+  // Ustawiamy globalne timeouty dla klienta HTTP
+  sl.registerSingleton(
+    Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 10), // Czas na nawiązanie połączenia
+        receiveTimeout: const Duration(seconds: 15), // Czas na otrzymanie odpowiedzi
+      ),
+    ),
+  );
   sl.registerSingleton(ConfigService());
 
   // Ładowanie konfiguracji przy starcie

@@ -30,7 +30,7 @@ class AnalyzeOrder implements UseCase<OrderAnalysisResult, AnalyzeOrderParams> {
     );
   }
 
-  OrderAnalysisResult _matchProducts(
+ OrderAnalysisResult _matchProducts(
     List<ParsedOrderItem> parsedItems,
     List<Product> allProducts,
   ) {
@@ -38,28 +38,55 @@ class AnalyzeOrder implements UseCase<OrderAnalysisResult, AnalyzeOrderParams> {
     double totalSum = 0;
 
     for (final item in parsedItems) {
-      // Używamy fuzzy matching (np. Levenshtein) dla lepszych wyników
-      // 'extractOne' znajduje najlepsze dopasowanie
-      final bestMatch = fuzzy.extractOne(
-        query: item.name,
-        choices: allProducts.map((p) => p.title).toList(),
-        cutoff: 60, // Próg dopasowania (0-100), do dostrojenia
-      );
+      Product? matchedProduct; // Domyślnie null
 
-      final matchedProduct = allProducts.firstWhere(
-        (p) => p.title == bestMatch.choice,
-      );
-      final itemSum = matchedProduct.price * item.quantity;
-      totalSum += itemSum;
+      if (allProducts.isNotEmpty) {
+        try {
+          // V-- TO JEST KLUCZOWA ZMIANA --V
+          // Ta funkcja rzuca wyjątek, jeśli nie znajdzie dopasowania
+          // powyżej progu 'cutoff'
+          final bestMatch = fuzzy.extractOne(
+            query: item.name,
+            choices: allProducts.map((p) => p.title).toList(),
+            cutoff: 60,
+          );
 
-      resultItems.add(OrderItem(
-        productName: matchedProduct.title,
-        quantity: item.quantity,
-        unitPrice: matchedProduct.price,
-        itemSum: itemSum,
-        isMatched: true,
-      ));
+          // Jeśli kod dotrze tutaj, to znaczy, że dopasowanie znaleziono
+          matchedProduct = allProducts.firstWhere(
+            (p) => p.title == bestMatch.choice,
+          );
+          // ^-- KONIEC BLOKU TRY --^
+
+        } catch (e) {
+          // Łapiemy błąd (np. 'Bad state: No element' z fuzzywuzzy)
+          // Oznacza to brak dopasowania.
+          // matchedProduct pozostaje null, co jest poprawne.
+          // print('Nie znaleziono dopasowania dla "${item.name}": $e');
         }
+      }
+
+      // Ta logika pozostaje bez zmian
+      if (matchedProduct != null) {
+        // Znaleziono dopasowanie
+        final itemSum = matchedProduct.price * item.quantity;
+        totalSum += itemSum;
+
+        resultItems.add(OrderItem(
+          productName: matchedProduct.title,
+          quantity: item.quantity,
+          unitPrice: matchedProduct.price,
+          itemSum: itemSum,
+          isMatched: true,
+        ));
+      } else {
+        // Nie znaleziono dopasowania (lub lista była pusta)
+        resultItems.add(OrderItem(
+          productName: item.name, // Oryginalna nazwa z AI
+          quantity: item.quantity,
+          isMatched: false,
+        ));
+      }
+    }
 
     return OrderAnalysisResult(items: resultItems, totalSum: totalSum);
   }

@@ -85,7 +85,12 @@ class _OrderViewState extends State<OrderView> {
   @override
   Widget build(BuildContext context) {
     // Sprawdzamy stan ProductBloc, aby wiedzieć, czy możemy analizować
-    final bool canAnalyze = context.watch<ProductBloc>().state is ProductLoaded;
+    final productState = context.watch<ProductBloc>().state;
+    bool canAnalyze = false;
+    if (productState is ProductLoaded) {
+      // Możemy analizować tylko, jeśli stan to ProductLoaded ORAZ lista nie jest pusta
+      canAnalyze = productState.allProducts.isNotEmpty;
+    }
 
     return Scaffold(
       appBar: AppBar(
