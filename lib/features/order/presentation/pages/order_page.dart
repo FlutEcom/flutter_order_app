@@ -152,22 +152,31 @@ class _OrderViewState extends State<OrderView> {
             filled: true,
             fillColor: Colors.white,
           ),
-          onChanged: (text) => setState(() {}), // Do odświeżenia stanu przycisku
+          onChanged: (text) => setState(() {}), 
         ),
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextButton(
-              onPressed: () => _textController.text = _exampleText1,
+              onPressed: () {
+                _textController.text = _exampleText1;
+                setState(() {}); 
+              },
               child: const Text('Test 1'),
             ),
             TextButton(
-              onPressed: () => _textController.text = _exampleText2,
+              onPressed: () {
+                _textController.text = _exampleText2;
+                setState(() {}); 
+              },
               child: const Text('Test 2'),
             ),
             TextButton(
-              onPressed: () => _textController.clear(),
+              onPressed: () {
+                _textController.clear();
+                setState(() {}); 
+              },
               child: const Text('Wyczyść', style: TextStyle(color: Colors.red)),
             ),
           ],
